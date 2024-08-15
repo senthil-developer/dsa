@@ -1,87 +1,83 @@
-class MyNode {
-  head: number;
-  next: MyNode | null;
-
-  constructor(value: number) {
+class Node {
+  constructor(value) {
     this.head = value;
     this.next = null;
   }
 }
 
-class MyLinkedList {
-  private _size: number;
-  head: MyNode | null;
-  tail: MyNode | null;
-  constructor(val: number | null) {
-    if (val === null) {
+class LinkedList {
+  #size;
+  constructor(val) {
+    if (!val) {
       this.head = null;
       this.tail = null;
-      this._size = 0;
+      this.#size = 0;
       return;
     }
-    this.head = new MyNode(val);
+    this.head = new Node(val);
     this.tail = this.head;
-    this._size = 1;
+    this.#size = 1;
   }
 
-  push(value: number): boolean {
-    const node = new MyNode(value);
+  push(value) {
+    const node = new Node(value);
 
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
-      this._size++;
+      this.#size++;
       return true;
     }
 
-    this.tail!.next = node;
+    this.tail.next = node;
     this.tail = node;
-    this._size++;
+    this.#size++;
     return true;
   }
 
-  pop(): MyNode | null {
+  pop() {
     if (!this.head) {
       return null;
     }
 
     let temp = this.head;
-    let pre: MyNode | null = this.head;
+    let pre = this.head;
 
     while (temp.next) {
       pre = temp;
-      temp = temp.next;
+      temp = pre.next;
     }
 
-    if (pre) {
-      this.tail = pre;
-      this.tail.next = null;
-    } else {
+    this.tail = pre;
+
+    this.tail.next = null;
+    this.#size--;
+
+    if (this.#size === 0) {
       this.head = null;
       this.tail = null;
     }
 
-    this._size--;
     return temp;
   }
 
-  unshift(val: number): boolean {
-    const node = new MyNode(val);
+  unshift(val) {
+    const node = new Node(val);
 
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
-      this._size++;
+      this.#size++;
       return true;
     }
 
     node.next = this.head;
     this.head = node;
-    this._size++;
+    this.#size++;
     return true;
   }
 
-  shift(): MyNode | null {
+  shift() {
     if (!this.head) {
       return null;
     }
@@ -89,43 +85,43 @@ class MyLinkedList {
     const temp = this.head;
     this.head = this.head.next;
     temp.next = null;
-    this._size--;
+    this.#size--;
 
-    if (this._size === 0) {
+    if (this.#size === 0) {
       this.tail = null;
     }
 
     return temp;
   }
 
-  getFirst(): MyNode | null {
+  getFirst() {
     if (!this.head) {
       return null;
     }
     return this.head;
   }
 
-  getLast(): MyNode | null {
+  getLast() {
     if (!this.tail) {
       return null;
     }
     return this.tail;
   }
 
-  get(index: number): MyNode | null {
-    if (index < 0 || index >= this._size) {
+  get(index) {
+    if (index < 0 || index >= this.#size) {
       return null;
     }
 
     let temp = this.head;
     for (let i = 0; i < index; i++) {
-      temp = temp!.next;
+      temp = temp.next;
     }
 
     return temp;
   }
 
-  set(index: number, val: number): boolean {
+  set(index, val) {
     const temp = this.get(index);
 
     if (temp) {
@@ -135,8 +131,8 @@ class MyLinkedList {
     return false;
   }
 
-  insert(index: number, val: number): boolean {
-    if (index < 0 || index > this._size) {
+  insert(index, val) {
+    if (index < 0 || index > this.#size) {
       return false;
     }
 
@@ -145,33 +141,26 @@ class MyLinkedList {
       return true;
     }
 
-    if (index === this._size) {
+    if (index === this.#size) {
       this.push(val);
       return true;
     }
 
-    const node = new MyNode(val);
+    const node = new Node(val);
     const temp = this.get(index - 1);
 
-    node.next = temp!.next;
-    temp!.next = node;
-    this._size++;
+    node.next = temp.next;
+    temp.next = node;
+    this.#size++;
     return true;
   }
 
-  clear(): void {
+  clear() {
     this.head = null;
-    this._size = 0;
+    this.#size = 0;
   }
 
-  size(): number {
-    return this._size - 1;
+  size() {
+    return this.#size - 1;
   }
 }
-
-const myList = new MyLinkedList(1);
-
-myList.push(2);
-myList.push(3);
-myList.push(42);
-console.log(myList);
