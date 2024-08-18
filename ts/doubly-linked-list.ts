@@ -1,111 +1,113 @@
-class MyNode<T> {
+class DNode<T> {
   value: T;
-  next: MyNode<T> | null;
+  next: DNode<T> | null;
+  prev: DNode<T> | null;
 
   constructor(value: T) {
     this.value = value;
     this.next = null;
+    this.prev = null;
   }
 }
 
-class MyLinkedList<T> {
+class MyDoublyLinkedList<T> {
   private _size: number;
-  head: MyNode<T> | null;
-  tail: MyNode<T> | null;
-
+  head: DNode<T> | null;
+  tail: DNode<T> | null;
   constructor(val: T | null) {
     if (val === null) {
       this.head = null;
       this.tail = null;
       this._size = 0;
     } else {
-      this.head = new MyNode<T>(val);
+      this.head = new DNode<T>(val);
       this.tail = this.head;
       this._size = 1;
     }
   }
 
   push(value: T): boolean {
-    const node = new MyNode(value);
+    const node = new DNode(value);
 
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
     } else {
       this.tail!.next = node;
+      node.prev = this.tail;
       this.tail = node;
     }
-
     this._size++;
     return true;
   }
 
-  pop(): MyNode<T> | null {
-    if (!this.head) {
+  pop(): DNode<T> | null {
+    if (!this.tail) {
       return null;
     }
 
-    let temp = this.head;
-    let pre: MyNode<T> | null = null;
+    const temp = this.tail;
 
-    while (temp.next) {
-      pre = temp;
-      temp = temp.next;
-    }
-
-    if (pre) {
-      this.tail = pre;
-      this.tail.next = null;
-    } else {
+    if (this._size === 1) {
       this.head = null;
       this.tail = null;
-    }
+    } else {
+      this.tail = temp!.prev;
 
+      if (this.tail) {
+        this.tail.next = null;
+      }
+      temp.prev = null;
+    }
     this._size--;
     return temp;
   }
 
   unshift(val: T): boolean {
-    const node = new MyNode(val);
+    const node = new DNode(val);
 
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
     } else {
       node.next = this.head;
+      this.head.prev = node;
       this.head = node;
     }
-
     this._size++;
     return true;
   }
 
-  shift(): MyNode<T> | null {
+  shift(): DNode<T> | null {
     if (!this.head) {
       return null;
     }
 
     const temp = this.head;
-    this.head = this.head.next;
-    temp.next = null;
-    this._size--;
 
-    if (this._size === 0) {
+    if (this._size === 1) {
+      this.head = null;
       this.tail = null;
+    } else {
+      this.head = this.head.next;
+      if (this.head) {
+        this.head.prev = null;
+      }
+      temp.next = null;
     }
-
+    this._size--;
     return temp;
   }
 
-  getFirst(): MyNode<T> | null {
+  getFirst(): DNode<T> | null {
     return this.head;
   }
 
-  getLast(): MyNode<T> | null {
+  getLast(): DNode<T> | null {
     return this.tail;
   }
 
-  get(index: number): MyNode<T> | null {
+  get(index: number): DNode<T> | null {
     if (index < 0 || index >= this._size) {
       return null;
     }
@@ -143,17 +145,20 @@ class MyLinkedList<T> {
       return true;
     }
 
-    const node = new MyNode<T>(val);
-    const prevNode = this.get(index - 1);
+    const node = new DNode<T>(val);
+    const prev = this.get(index - 1);
+    const next = prev!.next;
 
-    if (prevNode) {
-      node.next = prevNode.next;
-      prevNode.next = node;
-      this._size++;
-      return true;
-    }
+    prev!.next = node;
 
-    return false;
+    next!.prev = node;
+
+    node.prev = prev;
+
+    node.next = next;
+
+    this._size++;
+    return true;
   }
 
   clear(): void {

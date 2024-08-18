@@ -1,124 +1,119 @@
-class MyNode<T> {
-  value: T;
-  next: MyNode<T> | null;
-
-  constructor(value: T) {
+class Node {
+  constructor(value) {
     this.value = value;
     this.next = null;
+    this.prev = null;
   }
 }
 
-class MyLinkedList<T> {
-  private _size: number;
-  head: MyNode<T> | null;
-  tail: MyNode<T> | null;
-
-  constructor(val: T | null) {
+class DoublyLinkedList {
+  constructor(val = null) {
     if (val === null) {
       this.head = null;
       this.tail = null;
       this._size = 0;
     } else {
-      this.head = new MyNode<T>(val);
+      this.head = new Node(val);
       this.tail = this.head;
       this._size = 1;
     }
   }
 
-  push(value: T): boolean {
-    const node = new MyNode(value);
+  push(value) {
+    const node = new Node(value);
 
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
     } else {
-      this.tail!.next = node;
+      this.tail.next = node;
+      node.prev = this.tail;
       this.tail = node;
     }
-
     this._size++;
     return true;
   }
 
-  pop(): MyNode<T> | null {
-    if (!this.head) {
+  pop() {
+    if (!this.tail) {
       return null;
     }
 
-    let temp = this.head;
-    let pre: MyNode<T> | null = null;
+    const temp = this.tail;
 
-    while (temp.next) {
-      pre = temp;
-      temp = temp.next;
-    }
-
-    if (pre) {
-      this.tail = pre;
-      this.tail.next = null;
-    } else {
+    if (this._size === 1) {
       this.head = null;
       this.tail = null;
-    }
+    } else {
+      this.tail = temp.prev;
 
+      if (this.tail) {
+        this.tail.next = null;
+      }
+      temp.prev = null;
+    }
     this._size--;
     return temp;
   }
 
-  unshift(val: T): boolean {
-    const node = new MyNode(val);
+  unshift(val) {
+    const node = new Node(val);
 
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
     } else {
       node.next = this.head;
+      this.head.prev = node;
       this.head = node;
     }
-
     this._size++;
     return true;
   }
 
-  shift(): MyNode<T> | null {
+  shift() {
     if (!this.head) {
       return null;
     }
 
     const temp = this.head;
-    this.head = this.head.next;
-    temp.next = null;
-    this._size--;
 
-    if (this._size === 0) {
+    if (this._size === 1) {
+      this.head = null;
       this.tail = null;
+    } else {
+      this.head = this.head.next;
+      if (this.head) {
+        this.head.prev = null;
+      }
+      temp.next = null;
     }
-
+    this._size--;
     return temp;
   }
 
-  getFirst(): MyNode<T> | null {
+  getFirst() {
     return this.head;
   }
 
-  getLast(): MyNode<T> | null {
+  getLast() {
     return this.tail;
   }
 
-  get(index: number): MyNode<T> | null {
+  get(index) {
     if (index < 0 || index >= this._size) {
       return null;
     }
 
     let temp = this.head;
     for (let i = 0; i < index; i++) {
-      temp = temp!.next;
+      temp = temp.next;
     }
 
     return temp;
   }
 
-  set(index: number, val: T): boolean {
+  set(index, val) {
     const temp = this.get(index);
 
     if (temp) {
@@ -128,7 +123,7 @@ class MyLinkedList<T> {
     return false;
   }
 
-  insert(index: number, val: T): boolean {
+  insert(index, val) {
     if (index < 0 || index > this._size) {
       return false;
     }
@@ -143,26 +138,26 @@ class MyLinkedList<T> {
       return true;
     }
 
-    const node = new MyNode<T>(val);
-    const prevNode = this.get(index - 1);
+    const node = new Node(val);
+    const prev = this.get(index - 1);
+    const next = prev.next;
 
-    if (prevNode) {
-      node.next = prevNode.next;
-      prevNode.next = node;
-      this._size++;
-      return true;
-    }
+    prev.next = node;
+    next.prev = node;
+    node.prev = prev;
+    node.next = next;
 
-    return false;
+    this._size++;
+    return true;
   }
 
-  clear(): void {
+  clear() {
     this.head = null;
     this.tail = null;
     this._size = 0;
   }
 
-  size(): number {
+  size() {
     return this._size;
   }
 }

@@ -1,22 +1,21 @@
 class Node {
   constructor(value) {
-    this.head = value;
+    this.value = value;
     this.next = null;
   }
 }
 
 class LinkedList {
-  #size;
   constructor(val) {
-    if (!val) {
+    if (val === null) {
       this.head = null;
       this.tail = null;
-      this.#size = 0;
-      return;
+      this._size = 0;
+    } else {
+      this.head = new Node(val);
+      this.tail = this.head;
+      this._size = 1;
     }
-    this.head = new Node(val);
-    this.tail = this.head;
-    this.#size = 1;
   }
 
   push(value) {
@@ -25,13 +24,12 @@ class LinkedList {
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
-      this.#size++;
-      return true;
+    } else {
+      this.tail.next = node;
+      this.tail = node;
     }
 
-    this.tail.next = node;
-    this.tail = node;
-    this.#size++;
+    this._size++;
     return true;
   }
 
@@ -41,23 +39,22 @@ class LinkedList {
     }
 
     let temp = this.head;
-    let pre = this.head;
+    let pre = null;
 
     while (temp.next) {
       pre = temp;
-      temp = pre.next;
+      temp = temp.next;
     }
 
-    this.tail = pre;
-
-    this.tail.next = null;
-    this.#size--;
-
-    if (this.#size === 0) {
+    if (pre) {
+      this.tail = pre;
+      this.tail.next = null;
+    } else {
       this.head = null;
       this.tail = null;
     }
 
+    this._size--;
     return temp;
   }
 
@@ -67,13 +64,12 @@ class LinkedList {
     if (!this.head) {
       this.head = node;
       this.tail = this.head;
-      this.#size++;
-      return true;
+    } else {
+      node.next = this.head;
+      this.head = node;
     }
 
-    node.next = this.head;
-    this.head = node;
-    this.#size++;
+    this._size++;
     return true;
   }
 
@@ -85,9 +81,9 @@ class LinkedList {
     const temp = this.head;
     this.head = this.head.next;
     temp.next = null;
-    this.#size--;
+    this._size--;
 
-    if (this.#size === 0) {
+    if (this._size === 0) {
       this.tail = null;
     }
 
@@ -95,21 +91,15 @@ class LinkedList {
   }
 
   getFirst() {
-    if (!this.head) {
-      return null;
-    }
     return this.head;
   }
 
   getLast() {
-    if (!this.tail) {
-      return null;
-    }
     return this.tail;
   }
 
   get(index) {
-    if (index < 0 || index >= this.#size) {
+    if (index < 0 || index >= this._size) {
       return null;
     }
 
@@ -125,14 +115,14 @@ class LinkedList {
     const temp = this.get(index);
 
     if (temp) {
-      temp.head = val;
+      temp.value = val;
       return true;
     }
     return false;
   }
 
   insert(index, val) {
-    if (index < 0 || index > this.#size) {
+    if (index < 0 || index > this._size) {
       return false;
     }
 
@@ -141,26 +131,31 @@ class LinkedList {
       return true;
     }
 
-    if (index === this.#size) {
+    if (index === this._size) {
       this.push(val);
       return true;
     }
 
     const node = new Node(val);
-    const temp = this.get(index - 1);
+    const prevNode = this.get(index - 1);
 
-    node.next = temp.next;
-    temp.next = node;
-    this.#size++;
-    return true;
+    if (prevNode) {
+      node.next = prevNode.next;
+      prevNode.next = node;
+      this._size++;
+      return true;
+    }
+
+    return false;
   }
 
   clear() {
     this.head = null;
-    this.#size = 0;
+    this.tail = null;
+    this._size = 0;
   }
 
   size() {
-    return this.#size - 1;
+    return this._size;
   }
 }
